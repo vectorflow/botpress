@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { NodeModel, NodeFactory } from 'storm-react-diagrams'
+import { NodeModel, AbstractNodeFactory } from 'storm-react-diagrams'
 
 import { StandardOutgoingPortModel, StandardPortWidget, StandardIncomingPortModel } from './Ports'
 import ActionItem from '../../common/action'
@@ -89,8 +89,8 @@ export class StandardNodeModel extends NodeModel {
     })
   }
 
-  deSerialize(data) {
-    super.deSerialize(data)
+  deSerialize(data, engine) {
+    super.deSerialize(data, engine)
 
     this.setData({ name: data.name, onEnter: data.onEnter, onReceive: data.onReceive, next: data.next })
   }
@@ -141,7 +141,7 @@ export class StandardNodeModel extends NodeModel {
 
 export const StandardNodeWidgetFactory = React.createFactory(StandardNodeWidget)
 
-export class StandardWidgetFactory extends NodeFactory {
+export class StandardWidgetFactory extends AbstractNodeFactory {
   constructor() {
     super('standard')
   }

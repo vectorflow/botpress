@@ -2,22 +2,20 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
 import { withRouter } from 'react-router-dom'
+import { PortWidget, PortModel, DefaultPortModel } from 'storm-react-diagrams'
+import style from './style.scss'
 
-const { PortWidget, PortModel } = require('storm-react-diagrams')
-
-const style = require('./style.scss')
-
-export class StandardOutgoingPortModel extends PortModel {
+export class StandardOutgoingPortModel extends DefaultPortModel {
   constructor(name) {
-    super(name)
+    super(false, name)
   }
 
   serialize() {
     return _.merge(super.serialize(), {})
   }
 
-  deSerialize(data) {
-    super.deSerialize(data)
+  deSerialize(data, engine) {
+    super.deSerialize(data, engine)
   }
 }
 
@@ -99,16 +97,16 @@ export class StandardPortWidgetDisconnected extends React.Component {
 }
 export const StandardPortWidget = withRouter(StandardPortWidgetDisconnected)
 
-export class StandardIncomingPortModel extends PortModel {
-  constructor(name) {
-    super(name)
+export class StandardIncomingPortModel extends DefaultPortModel {
+  constructor(name, type) {
+    super(true, name, type)
   }
 
   serialize() {
     return _.merge(super.serialize(), {})
   }
 
-  deSerialize(data) {
-    super.deSerialize(data)
+  deSerialize(data, engine) {
+    super.deSerialize(data, engine)
   }
 }

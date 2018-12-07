@@ -4,7 +4,7 @@ import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { DiagramWidget, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
+import { DiagramWidget, DiagramEngine, DiagramModel, PointModel, DefaultLinkFactory } from 'storm-react-diagrams'
 import { toast } from 'react-toastify'
 
 import { hashCode } from '~/util'
@@ -81,7 +81,7 @@ class FlowBuilder extends Component {
 
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
-    this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
+    this.diagramEngine.registerLinkFactory(new DefaultLinkFactory())
 
     this.setModel()
   }
@@ -183,19 +183,20 @@ class FlowBuilder extends Component {
           sourcePort: sourcePort.name
         })
         const targetPort = targetNode.ports['in']
-        const link = new LinkModel()
-        link.setSourcePort(sourcePort)
-        link.setTargetPort(targetPort)
 
-        if (existingLink) {
-          link.setPoints(
-            existingLink.points.map(pt => {
-              return new PointModel(link, { x: pt.x, y: pt.y })
-            })
-          )
+        if (sourcePort && targetPort) {
+          const link = sourcePort.link(targetPort)
+
+          if (existingLink) {
+            link.setPoints(
+              existingLink.points.map(pt => {
+                return new PointModel(link, { x: pt.x, y: pt.y })
+              })
+            )
+          }
+
+          this.activeModel.addLink(link)
         }
-
-        this.activeModel.addLink(link)
       }
     })
   }
@@ -388,7 +389,8 @@ class FlowBuilder extends Component {
       // We don't want to link node to itself
       const outPort = link.sourcePort.name.startsWith('out') ? link.sourcePort : link.targetPort
       const targetPort = link.sourcePort.name.startsWith('out') ? link.targetPort : link.sourcePort
-      if (outPort.parentNode.id === targetPort.parentNode.id) {
+
+      if (outPort.parent.id === targetPort.parent.id) {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
@@ -575,10 +577,12 @@ class FlowBuilder extends Component {
           </div>
         )}
         <DiagramWidget
+          className={style.canvas}
           readOnly={this.props.readOnly}
           ref={w => (this.diagramWidget = w)}
           deleteKeys={[]}
           diagramEngine={this.diagramEngine}
+          smartRouting={false}
         />
       </div>
     )

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { NodeModel, NodeFactory } from 'storm-react-diagrams'
+import { NodeModel, AbstractNodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
@@ -83,8 +83,8 @@ export class SkillCallNodeModel extends NodeModel {
     })
   }
 
-  deSerialize(data) {
-    super.deSerialize(data)
+  deSerialize(data, engine) {
+    super.deSerialize(data, engine)
 
     this.setData({ name: data.name, skill: data.skill, next: data.next })
   }
@@ -120,7 +120,7 @@ export class SkillCallNodeModel extends NodeModel {
 
 export const SkillCallNodeWidgetFactory = React.createFactory(SkillCallNodeWidget)
 
-export class SkillCallWidgetFactory extends NodeFactory {
+export class SkillCallWidgetFactory extends AbstractNodeFactory {
   constructor() {
     super('skill-call')
   }
