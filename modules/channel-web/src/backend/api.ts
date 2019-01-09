@@ -232,20 +232,41 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/events/:userId',
     asyncApi(async (req, res) => {
+      const { botId } = req.params
       const { type = undefined, payload = undefined } = req.body || {}
       const { userId = undefined } = req.params || {}
       const { result: user } = await bp.users.getOrCreateUser('web', userId)
-      bp.events.sendEvent({
+      const event = bp.IO.Event({
+        botId,
         channel: 'web',
-        type,
-        user,
-        text: payload.text,
-        raw: _.pick(payload, ['text', 'type', 'data']),
+        direction: 'incoming',
+        payload,
+        target: userId,
+        type: type,
         ...payload.data
       })
+      bp.events.sendEvent(event)
       res.status(200).send({})
     })
   )
+
+  // router.post(
+  //   '/events/:userId',
+  //   asyncApi(async (req, res) => {
+  //     const { type = undefined, payload = undefined } = req.body || {}
+  //     const { userId = undefined } = req.params || {}
+  //     const { result: user } = await bp.users.getOrCreateUser('web', userId)
+  //     bp.events.sendEvent({
+  //       channel: 'web',
+  //       type,
+  //       user,
+  //       text: payload.text,
+  //       raw: _.pick(payload, ['text', 'type', 'data']),
+  //       ...payload.data
+  //     })
+  //     res.status(200).send({})
+  //   })
+  // )
 
   router.post(
     '/conversations/:userId/:conversationId/reset',
